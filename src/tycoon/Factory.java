@@ -79,9 +79,6 @@ public class Factory implements SourceLocation {
 		if (wait1 > wait2) {
 			this.time = wait2;
 			firstShip = t2.ship(location, wait2);
-		} else if (wait1 < wait2) {
-			this.time = wait1;
-			firstShip = t1.ship(location, wait1);
 		} else {
 			this.time = wait1;
 			firstShip = t1.ship(location, wait1);
