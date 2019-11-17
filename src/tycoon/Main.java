@@ -8,7 +8,7 @@ public class Main {
 		}
 		String locations = args[0];
 		Factory factory = new Factory(locations);
-		int spent = factory.timeToShip();
+		int spent = factory.shipAll();
 		System.out.println(spent);
 	}
 }

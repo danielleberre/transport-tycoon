@@ -41,7 +41,7 @@ public class Factory implements SourceLocation {
 	/**
 	 * Create a factory from a String of A and B representing the warehouses where each container should ship.
 	 * 
-	 * @param locations a String of A and B (e.g. "ABBA"). Note that 
+	 * @param locations a String of A and B (e.g. "ABBA").
 	 */
 	public Factory(String locations) {
 		this.containers.addAll(locations.chars().mapToObj(this::letterToWarehouse).collect(Collectors.toList()));
@@ -57,12 +57,17 @@ public class Factory implements SourceLocation {
 		throw new IllegalArgumentException("Only A and B letters are allowed!");
 	}
 	
-	public int ship() {
-		if (containers.isEmpty()) {
-			return time;
-		}
+	
+	/**
+	 * Ship one container.
+	 * 
+	 * It is expected that at least one container must ship.
+	 * 
+	 * @return the time of arrival of the container to its warehouse.
+	 */
+	private int ship() {
+		assert !containers.isEmpty(); 
 		return this.containers.removeFirst().shipFrom(this, this.time);
-
 	}
 
 	@Override
@@ -90,7 +95,12 @@ public class Factory implements SourceLocation {
 		return firstShip;
 	}
 
-	public int timeToShip() {
+	/**
+	 * Ship all containers.
+	 * 
+	 * @return the time of arrival of the last container to its warehouse.
+	 */
+	public int shipAll() {
 		int spent = 0;
 		while (!containers.isEmpty()) {
 			spent = Math.max(spent, ship());
