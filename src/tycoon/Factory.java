@@ -71,11 +71,6 @@ public class Factory implements SourceLocation {
 	}
 
 	@Override
-	public int distance() {
-		return 0;
-	}
-
-	@Override
 	public int deliver(TargetLocation location, int time) {
 		// wait for the first available truck
 		int wait1 = t1.nextAvailability(time);
@@ -90,7 +85,6 @@ public class Factory implements SourceLocation {
 		} else {
 			this.time = wait1;
 			firstShip = t1.ship(location, wait1);
-			t2.ship(this, wait1);
 		}
 		return firstShip;
 	}

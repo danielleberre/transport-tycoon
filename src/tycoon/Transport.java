@@ -27,7 +27,7 @@ public abstract class Transport {
 	 * @param time the current time
 	 * @return the time of arrival of the container
 	 */
-	public int ship(Location location, int time) {
+	public int ship(TargetLocation location, int time) {
 		this.nextAvailability = time + 2 * location.distance();
 		return time + location.distance();
 	}

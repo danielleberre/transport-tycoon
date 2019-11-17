@@ -6,7 +6,7 @@ package tycoon;
  * @author leberre
  *
  */
-public interface TargetLocation extends Location {
+public interface TargetLocation {
 	
 	/**
 	 * Handle the delivery of a container to this location.
@@ -15,4 +15,10 @@ public interface TargetLocation extends Location {
 	 * @return the time of arrival of the container
 	 */
 	int shipFrom(SourceLocation source, int time);
+	
+	/**
+	 * Provide the distance to it's previous location.
+	 * @return
+	 */
+	int distance();
 }

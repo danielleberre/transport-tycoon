@@ -6,7 +6,7 @@ package tycoon;
  * @author leberre
  *
  */
-public interface SourceLocation extends Location {
+public interface SourceLocation {
 
 	/**
 	 * Deliver a container to a given target at a given time.

@@ -6,7 +6,7 @@ package tycoon;
  * @author leberre
  *
  */
-public abstract class LocationShippingSupport implements Location, TargetLocation {
+public abstract class LocationShippingSupport implements TargetLocation {
 
 	private final int distance;
 	private final SourceLocation previous;
@@ -30,5 +30,4 @@ public abstract class LocationShippingSupport implements Location, TargetLocatio
 		}
 		return location.deliver(this,time);
 	}
-
 }
