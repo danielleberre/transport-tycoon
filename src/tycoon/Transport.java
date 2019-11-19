@@ -9,6 +9,14 @@ package tycoon;
 public abstract class Transport {
 	private int nextAvailability = 0;
 
+	private static int nbObjects = 0;
+	
+	private final int id = nbObjects++;
+	
+	public int getId() {
+		return id;
+	}
+	
 	/**
 	 * Compute when the transport will be available for shipping the next container.
 	 * @param time the current time
@@ -27,7 +35,7 @@ public abstract class Transport {
 	 * @param time the current time
 	 * @return the time of arrival of the container
 	 */
-	public int ship(TargetLocation location, int time) {
+	public int ship(Location location, int time) {
 		this.nextAvailability = time + 2 * location.distance();
 		return time + location.distance();
 	}

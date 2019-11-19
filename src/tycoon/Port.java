@@ -6,20 +6,39 @@ package tycoon;
  * @author leberre
  *
  */
-public class Port extends LocationShippingSupport implements SourceLocation {
+public class Port extends LocationShippingSupport {
 	private final Ship ship = new Ship();
 
 	/**
 	 * Create a new port.
+	 * 
 	 * @param previous the previous Location to reach this Port.
 	 * @param distance the distance between this Port and the previous Location.
 	 */
-	public Port(SourceLocation previous, int distance) {
-		super(previous,distance);
+	public Port(Location previous, int distance) {
+		super(previous, distance);
 	}
 
 	@Override
-	public int deliver(TargetLocation location, int time) {
-		return  ship.ship(location,ship.nextAvailability(time));
+	public int deliver(Location location, int time, Transport transport, Cargo cargo) {
+		if (cargo == null) {
+			EventManager.addEvent(new DepartureEvent(this, location, time, transport, null));
+			int arrivalTime = time+distance();
+			EventManager.addEvent(new ArrivalEvent(location, arrivalTime, transport, null));
+			return arrivalTime;
+		} else {
+			int shipTime = ship.nextAvailability(time);
+			EventManager.addEvent(new DepartureEvent(this, location, shipTime, ship, cargo));
+			int arrivalTime = ship.ship(location, shipTime);
+			EventManager.addEvent(new ArrivalEvent(location, arrivalTime, ship, cargo));
+			location.deliver(this, arrivalTime, ship, null);
+			return arrivalTime;
+		}
+
+	}
+
+	@Override
+	public String toString() {
+		return "PORT";
 	}
 }

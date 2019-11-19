@@ -6,13 +6,13 @@ package tycoon;
  * @author leberre
  *
  */
-public abstract class LocationShippingSupport implements TargetLocation {
+public abstract class LocationShippingSupport implements Location {
 
 	private final int distance;
-	private final SourceLocation previous;
+	private final Location previous;
 
 	
-	public LocationShippingSupport(SourceLocation previous, int distance) {
+	public LocationShippingSupport(Location previous, int distance) {
 		this.previous = previous;
 		this.distance = distance;
 	}
@@ -23,11 +23,13 @@ public abstract class LocationShippingSupport implements TargetLocation {
 	}
 
 	@Override
-	public int shipFrom(SourceLocation location, int time) {
+	public int shipFrom(Location location, int time, Transport transport, Cargo cargo) {
+		int arrivalTime;
 		if (location != previous) {
-			// TODO fix the cast
-			return  shipFrom(previous,location.deliver((TargetLocation)previous,time));
+			arrivalTime =  shipFrom(previous,location.deliver(previous,time,transport,cargo),transport,cargo);
+		} else {
+		    arrivalTime = location.deliver(this,time,transport,cargo);
 		}
-		return location.deliver(this,time);
+		return arrivalTime;
 	}
 }
