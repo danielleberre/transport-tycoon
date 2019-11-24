@@ -1,5 +1,6 @@
 package tycoon;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -33,9 +34,9 @@ public class Port extends LocationShippingSupport {
 	@Override
 	public int deliver(Location location, int time, Transport transport, Collection<Cargo> cargos) {
 		assert !cargos.isEmpty();
-		
+
 		int shipTime;
-		if (lastShip == time) {
+		if (lastShip >= time) {
 			shipTime = lastShip;
 		} else {
 			shipTime = ship.nextAvailability(time);
@@ -54,15 +55,18 @@ public class Port extends LocationShippingSupport {
 	private void shipToDestination(Location location, int shipTime) {
 		if (lastShip < shipTime) {
 			lastShip = shipTime;
-			EventManager.addEvent(new LoadEvent(this, shipTime, ship, containers));
-			EventManager
-					.addEvent(new DepartureEvent(this, location, shipTime + ship.getLoadDuration(), ship, containers));
-			int arrivalTime = ship.ship(location, shipTime + ship.getLoadDuration(), containers);
-			containers.clear();
-			EventManager.addEvent(
-					new DepartureEvent(location, this, arrivalTime + ship.getLoadDuration(), ship, List.of()));
-			ship.goBack(this, arrivalTime + ship.getLoadDuration()+location.distance());
+			Collection<Cargo> cargos = new ArrayList<>();
+			cargos.addAll(containers);
+			EventManager.addEvent(new LoadEvent(this, shipTime, ship, cargos, () -> {
+			}));
+			EventManager.addEvent(new DepartureEvent(this, location, shipTime + ship.getLoadDuration(), ship,
+					cargos, () -> location.onArrival(shipTime + ship.getLoadDuration() + location.distance(), ship, cargos)));
+			int arrivalTime = ship.ship(location, shipTime + ship.getLoadDuration(), cargos);
+			EventManager.addEvent(new DepartureEvent(location, this, arrivalTime + ship.getLoadDuration(), ship,
+					List.of(), () -> ship.goBack(this, arrivalTime + ship.getLoadDuration() + location.distance())));
 		}
+		containers.clear();
+
 	}
 
 	@Override

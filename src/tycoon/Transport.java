@@ -51,9 +51,8 @@ public abstract class Transport {
 	 */
 	public int ship(Location location, int time, Collection<Cargo> cargos) {
 		assert cargos.size() <= capacity;
-		this.nextAvailability = time + 2 * (location.distance() + loadDuration);
+		this.nextAvailability = time + 2 * location.distance() + loadDuration;
 		int arrivalTime = time + location.distance();
-		location.onArrival(arrivalTime, this, cargos);
 		return arrivalTime;
 	}
 

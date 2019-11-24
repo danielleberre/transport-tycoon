@@ -8,8 +8,8 @@ public class DepartureEvent extends Event {
 	private final Location target;
 	private final Transport transport;
 	
-	public DepartureEvent(Location source, Location target, int time, Transport transport, Collection<Cargo> cargos) {
-		super(time,cargos);
+	public DepartureEvent(Location source, Location target, int time, Transport transport, Collection<Cargo> cargos, Runnable callback) {
+		super(4,time,cargos,callback);
 		this.source = source;
 		this.target = target;
 		this.transport=transport;

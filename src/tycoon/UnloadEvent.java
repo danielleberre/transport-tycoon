@@ -7,8 +7,8 @@ public class UnloadEvent extends Event {
 	private final Location target;
 	private final Transport transport;
 		
-	public UnloadEvent(Location target, int time, Transport transport, Collection<Cargo> cargos) {
-		super(time,cargos);
+	public UnloadEvent(Location target, int time, Transport transport, Collection<Cargo> cargos,Runnable callback) {
+		super(2,time,cargos,callback);
 		this.target = target;
 		this.transport=transport;
 	}

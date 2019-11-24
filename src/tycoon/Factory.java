@@ -86,11 +86,10 @@ public class Factory implements Location {
 
 	@Override
 	public int deliver(Location location, int time, Transport transport, Collection<Cargo> cargos) {
-		EventManager.addEvent(new LoadEvent(this, time, transport, cargos));
-		EventManager.addEvent(new DepartureEvent(this, location, this.time, transport, cargos));
+		EventManager.addEvent(new LoadEvent(this, time, transport, cargos,()-> {}));
+		EventManager.addEvent(new DepartureEvent(this, location, time, transport, cargos,()-> location.onArrival(time+location.distance(), transport, cargos)));
 		int shipTime = transport.ship(location, time,cargos);
-		EventManager.addEvent(new DepartureEvent(location, this, shipTime, transport, List.of()));
-		transport.goBack(this, shipTime+location.distance());
+		EventManager.addEvent(new DepartureEvent(location, this, shipTime, transport, List.of(),()-> transport.goBack(this, shipTime+location.distance())));
 		return shipTime;
 	}
 
@@ -106,9 +105,11 @@ public class Factory implements Location {
 		int spent = 0;
 		while (!containers.isEmpty()) {
 			spent = Math.max(spent, ship());
+			EventManager.fireNextEvents();
 		}
-
-		EventManager.events().forEach(System.out::println);
+		while(!EventManager.isEmpty()) {
+			EventManager.fireNextEvents();
+		}
 		return spent;
 	}
 
@@ -129,6 +130,6 @@ public class Factory implements Location {
 
 	@Override
 	public void onArrival(int time, Transport transport, Collection<Cargo> cargos) {
-		EventManager.addEvent(new ArrivalEvent(this, time, transport, cargos));
+		EventManager.addEvent(new ArrivalEvent(this, time, transport, cargos,()-> {}));
 	}
 }

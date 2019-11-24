@@ -37,9 +37,9 @@ public abstract class LocationShippingSupport implements Location {
 
 	@Override
 	public void onArrival(int time, Transport transport, Collection<Cargo> cargos) {
-		EventManager.addEvent(new ArrivalEvent(this, time, transport, cargos));
+		EventManager.addEvent(new ArrivalEvent(this, time, transport, cargos,()-> {}));
 		if (!cargos.isEmpty()) {
-			EventManager.addEvent(new UnloadEvent(this, time, transport, cargos));
+			EventManager.addEvent(new UnloadEvent(this, time, transport, cargos,()-> {}));
 		}
 	}
 }

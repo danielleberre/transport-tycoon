@@ -3,6 +3,7 @@ package tycoon;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,11 @@ class FactoryTest {
 	private Factory factory;	
 	private Warehouse a;
 	private Warehouse b;
+	
+	@BeforeAll
+	public static void init() {
+		EventManager.setVerbosity(false);
+	}
 	
 	@BeforeEach
 	public void setup() {
@@ -71,11 +77,11 @@ class FactoryTest {
 
 	@Test
 	void testUnkownAABABBAB() {
-		assertEquals(29, factory.shipAll("AABABBAB"));
+		assertEquals(21, factory.shipAll("AABABBAB"));
 	}
 	
 	@Test
 	void testUnkownABBBABAAABBB() {
-		assertEquals(41, factory.shipAll("ABBBABAAABBB"));
+		assertEquals(39, factory.shipAll("ABBBABAAABBB"));
 	}
 }

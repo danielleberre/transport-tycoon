@@ -7,8 +7,8 @@ public class LoadEvent extends Event {
 	private final Location location;
 	private final Transport transport;
 		
-	public LoadEvent(Location location, int time, Transport transport, Collection<Cargo> cargos) {
-		super(time,cargos);
+	public LoadEvent(Location location, int time, Transport transport, Collection<Cargo> cargos,Runnable callback) {
+		super(3,time,cargos,callback);
 		this.location = location;
 		this.transport=transport;
 	}

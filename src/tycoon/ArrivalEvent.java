@@ -7,8 +7,8 @@ public class ArrivalEvent extends Event {
 	private final Location target;
 	private final Transport transport;
 		
-	public ArrivalEvent(Location target, int time, Transport transport, Collection<Cargo> cargos) {
-		super(time,cargos);
+	public ArrivalEvent(Location target, int time, Transport transport, Collection<Cargo> cargos, Runnable callback) {
+		super(1,time,cargos,callback);
 		this.target = target;
 		this.transport=transport;
 	}
