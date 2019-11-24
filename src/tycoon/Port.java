@@ -16,6 +16,8 @@ public class Port extends LocationShippingSupport {
 
 	private final Deque<Cargo> containers = new LinkedList<>();
 
+	private int lastShip = -1;
+
 	/**
 	 * Create a new port.
 	 * 
@@ -31,27 +33,36 @@ public class Port extends LocationShippingSupport {
 	@Override
 	public int deliver(Location location, int time, Transport transport, Collection<Cargo> cargos) {
 		assert !cargos.isEmpty();
-		int shipTime = ship.nextAvailability(time);
+		
+		int shipTime;
+		if (lastShip == time) {
+			shipTime = lastShip;
+		} else {
+			shipTime = ship.nextAvailability(time);
+		}
 		containers.addAll(cargos);
-		if (shipTime == time) {
-			// ship is departing now
-			if (containers.size() <= ship.getCapacity()) {
-				shipToDestination(location, shipTime);
-			} else {
-				throw new RuntimeException("Houston, we have a problem!");
-			}
+		// ship is departing now
+		if (containers.size() <= ship.getCapacity()) {
+			shipToDestination(location, shipTime);
+		} else {
+			throw new RuntimeException("Houston, we have a problem!");
 		}
 		return shipTime + location.distance() + 2 * ship.getLoadDuration();
 
 	}
 
 	private void shipToDestination(Location location, int shipTime) {
-		EventManager.addEvent(new LoadEvent(this, shipTime, ship, containers));
-		EventManager.addEvent(new DepartureEvent(this, location, shipTime + ship.getLoadDuration(), ship, containers));
-		int arrivalTime=ship.ship(location, shipTime+ ship.getLoadDuration(), containers);
-		containers.clear();
-		EventManager.addEvent(new DepartureEvent(location, this, arrivalTime+ship.getLoadDuration(), ship, List.of()));
-		ship.goBack(this, arrivalTime+location.distance());	
+		if (lastShip < shipTime) {
+			lastShip = shipTime;
+			EventManager.addEvent(new LoadEvent(this, shipTime, ship, containers));
+			EventManager
+					.addEvent(new DepartureEvent(this, location, shipTime + ship.getLoadDuration(), ship, containers));
+			int arrivalTime = ship.ship(location, shipTime + ship.getLoadDuration(), containers);
+			containers.clear();
+			EventManager.addEvent(
+					new DepartureEvent(location, this, arrivalTime + ship.getLoadDuration(), ship, List.of()));
+			ship.goBack(this, arrivalTime + ship.getLoadDuration()+location.distance());
+		}
 	}
 
 	@Override
@@ -59,6 +70,7 @@ public class Port extends LocationShippingSupport {
 		super.onArrival(time, transport, cargos);
 		if (transport == ship && !containers.isEmpty()) {
 			shipToDestination(containers.getFirst().getTarget(), time);
+
 		}
 	}
 
