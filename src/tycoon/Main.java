@@ -7,8 +7,11 @@ public class Main {
 			return;
 		}
 		String locations = args[0];
-		Factory factory = new Factory(locations);
-		int spent = factory.shipAll();
+		Factory factory = new Factory();
+		Warehouse a = new Warehouse("A", new Port(factory, 1,1), 4);
+		Warehouse b = new Warehouse("B", factory, 5);
+		factory.init(a, b);
+		int spent = factory.shipAll(locations);
 		System.out.println(spent);
 	}
 }

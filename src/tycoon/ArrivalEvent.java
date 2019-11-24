@@ -1,29 +1,21 @@
 package tycoon;
 
+import java.util.Collection;
+
 public class ArrivalEvent extends Event {
 
 	private final Location target;
 	private final Transport transport;
-	
-	private final Cargo cargo;
-	
-	public ArrivalEvent(Location target, int time, Transport transport, Cargo cargo) {
-		super(time);
+		
+	public ArrivalEvent(Location target, int time, Transport transport, Collection<Cargo> cargos) {
+		super(time,cargos);
 		this.target = target;
 		this.transport=transport;
-		this.cargo = cargo;
 	}
 	
 	@Override
-	public String toString() {
-		String start = String.format("{\"event\": \"ARRIVE\", \"time\":%d, \"transport_id\":%d, \"kind\":\"%s\", \"location\":\"%s\"", getTime(),transport.getId(),transport,target);
-		String end;
-		if (cargo == null) {
-			end = "}";
-		} else {
-			end = String.format(", \"cargo\":[%s]}", cargo);
-		}
-		return start+end;
+	public String prefix() {
+		return String.format("{\"event\": \"ARRIVE\", \"time\":%d, \"transport_id\":%d, \"kind\":\"%s\", \"location\":\"%s\"", getTime(),transport.getId(),transport,target);
 	}
 
 }

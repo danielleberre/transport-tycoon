@@ -1,5 +1,7 @@
 package tycoon;
 
+import java.util.Collection;
+
 /**
  * Target for shipping containers.
  * 
@@ -14,7 +16,7 @@ public interface Location {
 	 * @param time the current time
 	 * @return the time of arrival of the container
 	 */
-	int shipFrom(Location source, int time, Transport transport, Cargo cargo);
+	int shipFrom(Location source, int time, Transport transport, Collection<Cargo> cargos);
 	
 	/**
 	 * Provide the distance to it's previous location.
@@ -28,5 +30,15 @@ public interface Location {
 	 * @param time the current time
 	 * @return the time of arrival of the container
 	 */
-	int deliver(Location target, int time, Transport transport, Cargo cargo);
+	int deliver(Location target, int time, Transport transport, Collection<Cargo> cargos);
+	
+	
+	/**
+	 * Callback method called when a Cargo arrive at this location. 
+	 * 
+	 * @param time the arrival time
+	 * @param transport the transport conveying the cargo	
+	 * @param cargo the cargo itself
+	 */
+	void onArrival(int time, Transport transport, Collection<Cargo> cargos);
 }

@@ -1,5 +1,8 @@
 package tycoon;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Warehouse are target for containers.
  * 
@@ -21,11 +24,8 @@ public class Warehouse extends LocationShippingSupport {
 	}
 	
 	@Override
-	public int deliver(Location target, int time, Transport transport, Cargo cargo) {
-		EventManager.addEvent(new DepartureEvent(this, target, time, transport, null));
-		int arrivalTime = time+distance();
-		EventManager.addEvent(new ArrivalEvent(target, arrivalTime, transport, null));
-		return arrivalTime;
+	public int deliver(Location target, int time, Transport transport, Collection<Cargo> cargos) {
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override

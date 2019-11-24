@@ -1,7 +1,9 @@
 package tycoon;
 
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -28,27 +30,26 @@ public class Factory implements Location {
 	/**
 	 * Warehouse A, linked to a port.
 	 */
-	private final Warehouse A = new Warehouse("A", new Port(this, 1), 4);
+	private Warehouse A;
 	/**
 	 * Warehouse B, linked to the factory.
 	 */
-	private final Warehouse B = new Warehouse("B", this, 5);
+	private Warehouse B;
 	/**
 	 * The containers to ship, represented by their target warehouses.
 	 */
 	private final Deque<Cargo> containers = new LinkedList<>();
 	private int time = 0;
 
-	/**
-	 * Create a factory from a String of A and B representing the warehouses where
-	 * each container should ship.
-	 * 
-	 * @param locations a String of A and B (e.g. "ABBA").
-	 */
-	public Factory(String locations) {
-		this.containers.addAll(locations.chars().mapToObj(this::letterToCargo).collect(Collectors.toList()));
+	public Factory() {
 	}
 
+	public void init(Warehouse a, Warehouse b) {
+		this.A = a;
+		this.B = b;
+	}
+		
+	
 	private Cargo letterToCargo(int c) {
 		if (c == 'A') {
 			return new Cargo(this, A);
@@ -80,26 +81,28 @@ public class Factory implements Location {
 			this.time = wait1;
 			transport = t1;
 		}
-		return cargo.getTarget().shipFrom(this, this.time, transport, cargo);
+		return cargo.getTarget().shipFrom(this, this.time, transport, List.of(cargo));
 	}
 
 	@Override
-	public int deliver(Location location, int time, Transport transport, Cargo cargo) {
-		EventManager.addEvent(new DepartureEvent(this, location, this.time, transport, cargo));
-		int firstShip = transport.ship(location, time);
-		EventManager.addEvent(new ArrivalEvent(location, firstShip, transport, cargo));
-		if (cargo != null) {
-			location.deliver(this, firstShip, transport, null);
-		}
-		return firstShip;
+	public int deliver(Location location, int time, Transport transport, Collection<Cargo> cargos) {
+		EventManager.addEvent(new LoadEvent(this, time, transport, cargos));
+		EventManager.addEvent(new DepartureEvent(this, location, this.time, transport, cargos));
+		int shipTime = transport.ship(location, time,cargos);
+		EventManager.addEvent(new DepartureEvent(location, this, shipTime, transport, List.of()));
+		transport.goBack(this, shipTime+location.distance());
+		return shipTime;
 	}
 
 	/**
-	 * Ship all containers.
+	 * Ship all containers represented by the a String of A and B corresponding to  the warehouses where
+	 * each container should ship.
 	 * 
+	 * @param locations a String of A and B (e.g. "ABBA")
 	 * @return the time of arrival of the last container to its warehouse.
 	 */
-	public int shipAll() {
+	public int shipAll(String locations) {
+		this.containers.addAll(locations.chars().mapToObj(this::letterToCargo).collect(Collectors.toList()));
 		int spent = 0;
 		while (!containers.isEmpty()) {
 			spent = Math.max(spent, ship());
@@ -115,12 +118,17 @@ public class Factory implements Location {
 	}
 
 	@Override
-	public int shipFrom(Location source, int time, Transport transport, Cargo cargo) {
-		return time+source.distance();
+	public int shipFrom(Location source, int time, Transport transport, Collection<Cargo> cargos) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int distance() {
-		return 0;
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void onArrival(int time, Transport transport, Collection<Cargo> cargos) {
+		EventManager.addEvent(new ArrivalEvent(this, time, transport, cargos));
 	}
 }

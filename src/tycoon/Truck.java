@@ -10,6 +10,10 @@ package tycoon;
  */
 public class Truck extends Transport {
 
+	public Truck() {
+		super(0,1);
+	}
+
 	@Override
 	public String toString() {
 		return "TRUCK";

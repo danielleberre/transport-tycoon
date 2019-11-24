@@ -1,5 +1,10 @@
 package tycoon;
 
+import java.util.Collection;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * A port is both a target and a source for containers.
  * 
@@ -7,34 +12,54 @@ package tycoon;
  *
  */
 public class Port extends LocationShippingSupport {
-	private final Ship ship = new Ship();
+	private final Ship ship;
+
+	private final Deque<Cargo> containers = new LinkedList<>();
 
 	/**
 	 * Create a new port.
 	 * 
 	 * @param previous the previous Location to reach this Port.
 	 * @param distance the distance between this Port and the previous Location.
+	 * @param duration the duration of load/unload step for the ship
 	 */
-	public Port(Location previous, int distance) {
+	public Port(Location previous, int distance, int duration) {
 		super(previous, distance);
+		ship = new Ship(duration);
 	}
 
 	@Override
-	public int deliver(Location location, int time, Transport transport, Cargo cargo) {
-		if (cargo == null) {
-			EventManager.addEvent(new DepartureEvent(this, location, time, transport, null));
-			int arrivalTime = time+distance();
-			EventManager.addEvent(new ArrivalEvent(location, arrivalTime, transport, null));
-			return arrivalTime;
-		} else {
-			int shipTime = ship.nextAvailability(time);
-			EventManager.addEvent(new DepartureEvent(this, location, shipTime, ship, cargo));
-			int arrivalTime = ship.ship(location, shipTime);
-			EventManager.addEvent(new ArrivalEvent(location, arrivalTime, ship, cargo));
-			location.deliver(this, arrivalTime, ship, null);
-			return arrivalTime;
+	public int deliver(Location location, int time, Transport transport, Collection<Cargo> cargos) {
+		assert !cargos.isEmpty();
+		int shipTime = ship.nextAvailability(time);
+		containers.addAll(cargos);
+		if (shipTime == time) {
+			// ship is departing now
+			if (containers.size() <= ship.getCapacity()) {
+				shipToDestination(location, shipTime);
+			} else {
+				throw new RuntimeException("Houston, we have a problem!");
+			}
 		}
+		return shipTime + location.distance() + 2 * ship.getLoadDuration();
 
+	}
+
+	private void shipToDestination(Location location, int shipTime) {
+		EventManager.addEvent(new LoadEvent(this, shipTime, ship, containers));
+		EventManager.addEvent(new DepartureEvent(this, location, shipTime + ship.getLoadDuration(), ship, containers));
+		int arrivalTime=ship.ship(location, shipTime+ ship.getLoadDuration(), containers);
+		containers.clear();
+		EventManager.addEvent(new DepartureEvent(location, this, arrivalTime+ship.getLoadDuration(), ship, List.of()));
+		ship.goBack(this, arrivalTime+location.distance());	
+	}
+
+	@Override
+	public void onArrival(int time, Transport transport, Collection<Cargo> cargos) {
+		super.onArrival(time, transport, cargos);
+		if (transport == ship && !containers.isEmpty()) {
+			shipToDestination(containers.getFirst().getTarget(), time);
+		}
 	}
 
 	@Override
